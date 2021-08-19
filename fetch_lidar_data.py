@@ -1,36 +1,59 @@
+import pydal
 import json
-import pdal
+import errorMsgs
 
-REGION = "IA_FullState"
-BOUND = "([-10425171.940, -10423171.940], [5164494.710, 5166494.710])"
-PUBLIC_DATA_PATH = "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/"
-PIPELINE_PATH = "./get_data.json"
+from boundaries import Boundaries
 
 
-def get_raster_terrain(
-    bounds: str = BOUND,
-    regions: str = REGION,
-    output_filename: str = "temp",
-    public_access_path: str = PUBLIC_DATA_PATH,
-) -> None:
-  with open(PIPELINE_PATH) as js:
-    pipe = json.load(js)
-
-  pipe['pipeline'][0]['bounds'] = bounds
-  pipe['pipeline'][0]['filename'] = public_access_path + regions + "/ept.json"
-  pipe['pipeline'][3]['filename'] = "../data/laz/" + output_filename + ".laz"
-  pipe['pipeline'][4]['filename'] = "../data/tif/" + output_filename + ".tif"
-
-  pl = pdal.Pipeline(json.dumps(pipe))
-
-  try:
-    pl.execute()
-    metadata = pl.metadata
-    print('metadata: ', metadata)
-    log = pl.log
-    print("logs: ", log)
-  except RuntimeError as e:
-    print(e)
+err_msgs = errorMsgs.getErrorObj()
 
 
-get_raster_terrain()
+class Lidar_Data_Fetch:
+
+    def __init__(self, public_data_url, fetch_json_path="C:/Users/DESMOND/AgriTech/fetch.json") -> None:
+        self.public_data_url = public_data_url
+        self.fetch_json_path = fetch_json_path
+        # todo if folder not exist create folder structure
+        self.out_put_laz_path = "./data/laz/temp.laz"
+        self.out_put_tif_path = "./data/tif/temp.tif"
+
+    def __readFetchJson(self, path: str) -> dict:
+        try:
+            with open(path, 'r') as json_file:
+                dict_obj = json.load(json_file)
+            return dict_obj
+
+        except FileNotFoundError as e:
+            print(err_msgs['FETCH_JSON_FILE_NOT_FOUND'])
+
+    def getPipeline(self, region: str, bounds: Boundaries):
+        fetch_json = self.__readFetchJson(self.fetch_json_path)
+        BOUND = "([-10425171.94, -10423171.94], [5164494.71, 5166494.71])"
+
+        boundaries = bounds.getBoundStr()
+
+        full_dataset_path = f"{self.public_data_url}{region}/ept.json"
+
+        fetch_json['pipeline'][0]['filename'] = full_dataset_path
+        fetch_json['pipeline'][0]['bounds'] = BOUND
+
+        fetch_json['pipeline'][3]['filename'] = self.out_put_laz_path
+        fetch_json['pipeline'][4]['filename'] = self.out_put_tif_path
+
+        pipeline = pydal.Pipeline(json.dumps(fetch_json))
+
+        return pipeline
+
+    def runPipeline(self, region: str, bounds: Boundaries):
+        pipeline = self.getPipeline(region, bounds)
+
+        try:
+            pipeline.execute()
+            metadata = pipeline.metadata
+            log = pipeline.log
+        except RuntimeError as e:
+            print(e)
+
+    def __createDataFolderStruct(self):
+        # todo create folder structure for output folder
+        pass
