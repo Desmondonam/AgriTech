@@ -1,4 +1,4 @@
-import pdal
+import pydal
 import json
 
 REGION = "IA_FullState"
@@ -21,7 +21,7 @@ def get_raster_terrain(
     pipe['pipeline'][3]['filename'] = "../data/laz/" + output_filename + ".laz"
     pipe['pipeline'][4]['filename'] = "../data/tif/" + output_filename + ".tif"
 
-    pl = pdal.Pipeline(json.dumps(pipe))
+    pl = pydal.Pipeline(json.dumps(pipe))
 
     try:
         pl.execute()
