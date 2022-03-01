@@ -46,6 +46,4 @@ routine work, to low level - gives a high degree of control to users.
 ● Implementation of parallelisation to speed up fetching, loading, transforming, and
 visualization.
 You may not have time to implement all these elements this week, but you may write your
-code thinking about future implementation of these and other useful features. As per
-previous weeks, you may start your work by writing issues in your git repository, and
-completing them one by one throughout the week.
+code thinking about future implementation of these and other useful features.
