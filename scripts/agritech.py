@@ -1,4 +1,4 @@
-# this is the main module
+# this is the main module 
 
 import requests
 import folium
@@ -18,7 +18,7 @@ from ipywidgets import widgets
 import imageio
 import pathlib
 import matplotlib.pyplot as plt
-# import mapclassify as mc
+#import mapclassify as mc
 import numpy as np
 import laspy
 import rasterio
